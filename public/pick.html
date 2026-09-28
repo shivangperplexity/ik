@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Picking · Ink Kulture Pick &amp; Pack</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+  <main class="page" id="page">
+    <div class="pickhead" id="scanzone">
+      <div class="order" id="orderName"><small>Order</small>…</div>
+      <div class="progress">
+        <div class="count" id="progressText">– / –<span>ITEMS VERIFIED</span></div>
+        <div class="bar" id="bar"><div style="width:0%"></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div class="muted" id="scanState" style="font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase">Scanner ready</div>
+        <div class="pickbtns">
+          <button class="btn pause" id="pauseBtn">⏸ Pause picking</button>
+          <button class="btn small hidden" id="camBtn">📷 Camera</button>
+          <button class="btn small hidden" id="searchBtn">Search product</button>
+          <button class="btn small danger" id="stopBtn">Cancel pick</button>
+          <a class="btn small" href="/">Queue</a>
+        </div>
+      </div>
+    </div>
+    <div id="banners"></div>
+    <div class="items" id="items"></div>
+    <div class="finish" id="finish"></div>
+  </main>
+  <div class="camdock" id="camdock"></div>
+  <div class="feedback hidden" id="feedback" aria-live="assertive"></div>
+  <script src="/js/common.js"></script>
+  <script src="/js/camera.js"></script>
+  <script src="/js/pick.js"></script>
+</body>
+</html>

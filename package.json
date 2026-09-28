@@ -1,0 +1,35 @@
+{
+  "name": "ik-pickpack",
+  "version": "1.0.0",
+  "description": "Ink Kulture barcode pick & pack verification for Shopify",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "demo": "node demo/run-demo.js",
+    "test": "node --test --test-timeout=30000 test/*.test.js",
+    "check": "node --check src/*.js src/**/*.js public/js/*.js",
+    "build:netlify": "node scripts/copy-vendor.js",
+    "postinstall": "node scripts/copy-vendor.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@zxing/library": "^0.23.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "jsbarcode": "^3.12.3",
+    "knex": "^3.3.0",
+    "pg": "^8.23.0",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.0"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^13.0.3"
+  }
+}

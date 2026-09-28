@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barcode labels · Ink Kulture</title>
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    body { background: #e9ebef; }
+    .toolbar-print { position: sticky; top: 0; background: #111318; color: #fff; padding: 12px 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; z-index: 5; }
+    .toolbar-print input, .toolbar-print select { min-height: 38px; border-radius: 8px; border: 0; padding: 0 10px; font-size: 15px; }
+    .toolbar-print .btn { background: #fff; }
+    /* Each .page is exactly one A4 sheet, so a label can never be split
+       across two pages. */
+    .page {
+      width: 210mm; height: 297mm; margin: 20px auto; background: #fff; box-shadow: var(--shadow);
+      padding: 8mm 6mm; overflow: hidden; display: grid;
+      grid-template-columns: repeat(var(--cols), 1fr);
+      grid-auto-rows: var(--h); gap: var(--gap);
+      align-content: start;
+      break-after: page; page-break-after: always;
+    }
+    .page:last-child { break-after: auto; page-break-after: auto; }
+    .label {
+      height: var(--h); padding: 1.2mm 1.5mm; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+      overflow: hidden; color: #000; break-inside: avoid; page-break-inside: avoid;
+    }
+    .cutlines .label { outline: .3pt dashed #9aa0a6; outline-offset: -.15pt; }
+    .label .t { font-size: 6.5pt; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .label svg { width: 100%; height: calc(var(--h) - 9mm); display: block; }
+    .label .c { font-family: var(--mono); font-size: 8pt; font-weight: 800; line-height: 1; }
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+      html, body { background: #fff; margin: 0; }
+      .toolbar-print { display: none; }
+      .page { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar-print">
+    <strong>Product barcode labels</strong>
+    <input id="q" placeholder="Filter: name, SKU, barcode">
+    <label>Copies <input id="copies" type="number" min="1" max="50" value="1" style="width:70px"></label>
+    <label>Layout <select id="size">
+      <option value="4|10|26">A4 · 4 × 10 (48 × 26 mm)</option>
+      <option value="3|8|33">A4 · 3 × 8 (64 × 33 mm)</option>
+      <option value="5|13|20">A4 · 5 × 13 (38 × 20 mm)</option>
+    </select></label>
+    <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="cut" checked style="min-height:auto"> Cut lines</label>
+    <span id="count" style="opacity:.8"></span>
+    <div style="flex:1"></div>
+    <button class="btn small" onclick="window.print()">Print</button>
+  </div>
+  <div id="pages"></div>
+  <script src="/vendor/JsBarcode.all.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    (async function () {
+      const { esc, api, $ } = IK;
+      const USABLE_H = 297 - 16; // mm inside top/bottom padding
+      let all = [];
+      try {
+        const coll = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+        all = (await api('GET', '/api/admin/products?limit=5000')).products.filter((p) => p.barcode)
+          .sort((a, b) => coll.compare(a.sku || a.barcode, b.sku || b.barcode));
+      } catch (e) { $('#pages').innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+      const params = new URLSearchParams(location.search);
+      if (params.get('q')) $('#q').value = params.get('q');
+
+      function render() {
+        const term = $('#q').value.trim().toLowerCase();
+        const copies = Math.max(1, Math.min(50, parseInt($('#copies').value, 10) || 1));
+        const [cols, rows, h] = $('#size').value.split('|').map(Number);
+        const gap = rows > 1 ? Math.max(0, (USABLE_H - rows * h) / (rows - 1)) : 0;
+        const perPage = cols * rows;
+        const list = all.filter((p) => !term || [p.product_title, p.sku, p.barcode].some((x) => (x || '').toLowerCase().includes(term)));
+        const labels = [];
+        list.forEach((p) => { for (let i = 0; i < copies; i += 1) labels.push(p); });
+        const pages = [];
+        for (let i = 0; i < labels.length; i += perPage) pages.push(labels.slice(i, i + perPage));
+        $('#count').textContent = `${list.length} designs · ${labels.length} labels · ${pages.length} page${pages.length === 1 ? '' : 's'}`;
+        const root = $('#pages');
+        root.className = $('#cut').checked ? 'cutlines' : '';
+        let n = 0;
+        root.innerHTML = pages.map((pg) => `<section class="page" style="--cols:${cols};--h:${h}mm;--gap:${gap.toFixed(2)}mm">${
+          pg.map((p) => `<div class="label"><div class="t">${esc(p.product_title)}</div><svg id="l${n++}"></svg><div class="c">${esc(p.barcode)}</div></div>`).join('')
+        }</section>`).join('');
+        labels.forEach((p, i) => JsBarcode(`#l${i}`, p.barcode, { format: 'CODE128', displayValue: false, margin: 6, height: 60, width: 2 }));
+      }
+      ['input', 'change'].forEach((ev) => ['#q', '#copies', '#size', '#cut'].forEach((s) => $(s).addEventListener(ev, render)));
+      render();
+    })();
+  </script>
+</body>
+</html>

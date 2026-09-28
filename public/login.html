@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in · Ink Kulture Pick &amp; Pack</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <div class="muted" style="font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:13px">Ink Kulture</div>
+      <h1>Pick &amp; Pack login</h1>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" autocapitalize="off" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="error-text" id="err" role="alert"></div>
+      <button class="btn primary huge" type="submit">Log in</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('username').focus();
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('err');
+      err.textContent = '';
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ username: e.target.username.value.trim(), password: e.target.password.value }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) { err.textContent = body.message || 'Login failed'; return; }
+        const next = new URLSearchParams(location.search).get('next');
+        location.href = next && next.startsWith('/') && !next.startsWith('//') ? next : (body.user.role === 'admin' ? '/admin' : '/');
+      } catch (x) {
+        err.textContent = 'No connection to the server';
+      }
+    });
+  </script>
+</body>
+</html>

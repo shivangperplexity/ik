@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order queue · Ink Kulture Pick &amp; Pack</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+  <main class="page">
+    <div id="alert"></div>
+    <div id="resume"></div>
+
+    <div class="stats-row" id="counts"></div>
+
+    <div class="toolbar">
+      <strong style="font-size:20px">Orders</strong>
+      <span class="muted" id="fetched"></span>
+      <div style="flex:1"></div>
+      <button class="btn small hidden" id="hwToggle"></button>
+      <button class="btn small" id="typeOrder">Find order #</button>
+      <button class="btn small" id="refresh">Refresh</button>
+    </div>
+    <table class="grid" id="queueTable">
+      <thead>
+        <tr><th>Order</th><th class="hide-sm">SKUs</th><th>Items</th><th class="hide-sm">Order time</th><th>Status</th><th class="hide-sm">Picker</th><th></th></tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="7" class="empty">Loading orders from Shopify…</td></tr></tbody>
+    </table>
+  </main>
+  <script src="/js/common.js"></script>
+  <script src="/js/queue.js"></script>
+</body>
+</html>

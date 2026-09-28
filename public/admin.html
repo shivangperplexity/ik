@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Ink Kulture Pick &amp; Pack</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header class="topbar" id="topbar"></header>
+  <main class="page">
+    <div class="tabs" id="tabs">
+      <button data-tab="today" class="active">Today</button>
+      <button data-tab="active">Active picks</button>
+      <button data-tab="log">Scan log</button>
+      <button data-tab="history">Pick history</button>
+      <button data-tab="barcodes">Barcodes</button>
+      <button data-tab="staff">Staff</button>
+    </div>
+
+    <section data-panel="today">
+      <div class="tiles" id="tiles"></div>
+      <div class="panel-card">
+        <h2>Pickers today</h2>
+        <table class="grid compact"><thead><tr><th>Picker</th><th>Orders picked</th><th>Items picked</th><th>Wrong scans</th><th>Extra scans</th><th>Accuracy</th><th>Avg pick time</th></tr></thead><tbody id="pickerRows"></tbody></table>
+      </div>
+    </section>
+
+    <section data-panel="active" class="hidden">
+      <div class="panel-card">
+        <div class="toolbar"><h2 style="margin:0">Orders being picked now</h2><div style="flex:1"></div><button class="btn small" id="reloadActive">Refresh</button></div>
+        <table class="grid compact"><thead><tr><th>Order</th><th>Picker</th><th>Status</th><th>Progress</th><th>Started</th><th>Last activity</th><th></th></tr></thead><tbody id="activeRows"></tbody></table>
+      </div>
+    </section>
+
+    <section data-panel="log" class="hidden">
+      <div class="panel-card">
+        <div class="toolbar">
+          <input id="logOrder" placeholder="Order e.g. 1074">
+          <select id="logResult">
+            <option value="">All results</option>
+            <option>CORRECT</option><option>WRONG_PRODUCT</option><option>UNKNOWN_BARCODE</option><option>EXTRA_ITEM</option>
+            <option>AMBIGUOUS_BARCODE</option><option>OTHER_ORDER_BARCODE</option><option>ORDER_RESCAN_MISMATCH</option>
+            <option>PACKING_COMPLETED</option><option>SESSION_PAUSED</option><option>SESSION_RESUMED</option><option>MANUAL_VERIFY</option><option>ORDER_CHANGED</option><option>ORDER_CANCELLED</option>
+            <option>SESSION_STARTED</option><option>SESSION_RELEASED</option><option>DOUBLE_SCAN_IGNORED</option>
+          </select>
+          <button class="btn small" id="reloadLog">Search</button>
+        </div>
+        <table class="grid compact"><thead><tr><th>Time</th><th>Order</th><th>Picker</th><th>Result</th><th>Barcode</th><th>SKU</th><th>Product</th><th>Detail</th></tr></thead><tbody id="logRows"></tbody></table>
+      </div>
+    </section>
+
+    <section data-panel="history" class="hidden">
+      <div class="panel-card">
+        <div class="toolbar"><h2 style="margin:0">Picking sessions</h2><div style="flex:1"></div>
+          <select id="histStatus"><option value="">All</option><option value="packed">Packed</option><option value="released">Released</option><option value="active">Active</option></select></div>
+        <table class="grid compact"><thead><tr><th>Order</th><th>Picker</th><th>Status</th><th>Expected</th><th>Scanned</th><th>Wrong</th><th>Extra</th><th>Manual</th><th>Started</th><th>Completed</th><th>Duration</th></tr></thead><tbody id="histRows"></tbody></table>
+      </div>
+    </section>
+
+    <section data-panel="barcodes" class="hidden">
+      <div class="panel-card">
+        <div class="toolbar"><h2 style="margin:0">Product barcodes</h2><span class="muted" id="bcInfo"></span><div style="flex:1"></div>
+          <a class="btn small" href="/print/labels" target="_blank" rel="noopener">Print barcode labels</a>
+          <button class="btn small primary" id="syncBtn">Sync products from Shopify</button></div>
+        <div id="bcMissing"></div>
+        <div id="bcDup"></div>
+      </div>
+    </section>
+
+    <section data-panel="staff" class="hidden">
+      <div class="panel-card">
+        <h2>Add staff account</h2>
+        <form class="row" id="newUser">
+          <div class="field"><label>Name</label><input name="displayName" required placeholder="e.g. Ravi Kumar"></div>
+          <div class="field"><label>Username</label><input name="username" required autocapitalize="off" placeholder="e.g. ravi"></div>
+          <div class="field"><label>Password</label><input name="password" type="password" required minlength="3" placeholder="min 3 (admins 6)"></div>
+          <div class="field" style="max-width:160px"><label>Role</label><select name="role"><option value="picker">Picker</option><option value="admin">Admin</option></select></div>
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+        <div class="error-text" id="userErr"></div>
+      </div>
+      <div class="panel-card">
+        <h2>Staff</h2>
+        <table class="grid compact"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="userRows"></tbody></table>
+      </div>
+    </section>
+  </main>
+  <script src="/js/common.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

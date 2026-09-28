@@ -1,0 +1,74 @@
+# Ink Kulture Pick & Pack on Netlify
+#  - /public is served as static pages
+#  - the API runs as a Netlify Function (netlify/functions/api.js)
+#  - product barcodes re-sync from Shopify every 15 min (scheduled function)
+#  - data lives in Postgres: set DATABASE_URL (Neon free tier works) in the
+#    Netlify UI → Site configuration → Environment variables
+
+[build]
+  command = "npm run build:netlify"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  # Loaded from node_modules at runtime instead of being bundled
+  # (knex/pg/express use dynamic requires that bundlers cannot follow).
+  external_node_modules = ["knex", "pg", "express", "bcryptjs", "serverless-http", "cookie-parser"]
+
+[functions."sync-products"]
+  schedule = "*/15 * * * *"
+
+# ---------- API ----------
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/healthz"
+  to = "/.netlify/functions/api/healthz"
+  status = 200
+  force = true
+
+# ---------- pages ----------
+[[redirects]]
+  from = "/"
+  to = "/queue.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/pick/*"
+  to = "/pick.html"
+  status = 200
+
+[[redirects]]
+  from = "/print/slip"
+  to = "/slip.html"
+  status = 200
+
+[[redirects]]
+  from = "/print/labels"
+  to = "/labels.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
